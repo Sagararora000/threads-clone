@@ -171,6 +171,7 @@
     });
 
     const deletePost = async (id, picture) => {
+        console.log(id, picture);
         let res = confirm('Are you sure you want to delete this post?');
 
         if (!res) return;
@@ -181,8 +182,10 @@
             const { data, error } = await client.storage
                 .from('threads-clone-files')
                 .remove([picture]);
-
-            await useFetch(`/api/delete-post/${id}`, { method: 'DELETE' });
+            console.log(data, error);
+            await useFetch(`/.netlify/functions/delete-post?id=${id}`, {
+                method: 'DELETE',
+            });
             emit('isDeleted', true);
 
             isDeleting.value = false;
@@ -195,7 +198,7 @@
     const likePost = async (id) => {
         isLike.value = true;
         try {
-            await useFetch(`/api/like-post/`, {
+            await useFetch(`/.netlify/functions/like-post`, {
                 method: 'POST',
                 body: {
                     userId: user.value.identities[0].user_id,
@@ -213,7 +216,9 @@
     const unlikePost = async (id) => {
         isLike.value = true;
         try {
-            await useFetch(`/api/unlike-post/${id}`, { method: 'DELETE' });
+            await useFetch(`/.netlify/functions/unlike-post?id=${id}`, {
+                method: 'DELETE',
+            });
             await userStore.getAllPosts();
             isLike.value = false;
         } catch (error) {

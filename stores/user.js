@@ -10,7 +10,7 @@ export const useUserStore = defineStore('user', {
 
   actions: {
     async getAllPosts() {
-      let res = await useFetch('/api/get-all-posts')
+      let res = await useFetch('/.netlify/functions/get-all-posts')
       this.posts = res.data
       return res.data
     }

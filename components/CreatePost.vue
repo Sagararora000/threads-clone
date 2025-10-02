@@ -167,7 +167,7 @@
         }
 
         try {
-            await useFetch(`/api/create-post/`, {
+            await useFetch('/.netlify/functions/create-post', {
                 method: 'POST',
                 body: {
                     userId: user.value.identities[0].user_id,
