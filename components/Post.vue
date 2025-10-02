@@ -170,7 +170,9 @@
     const user = useSupabaseUser();
 
     // ✅ Local reactive copy of likes to prevent infinite loop
-    const likes = ref([...props.post.likes]);
+    const likes = ref(
+        Array.isArray(props.post.likes) ? [...props.post.likes] : []
+    );
 
     // ✅ Computed based on local likes array
     const hasLikedComputed = computed(() => {
