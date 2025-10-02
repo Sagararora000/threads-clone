@@ -1,0 +1,12 @@
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["node_modules/.prisma/client/**"]
+
+[build.environment]
+  PRISMA_CLIENT_ENGINE_TYPE = "binary"
+  NUXT_DATABASE_URL = "postgresql://postgres.lyiyklqgkkljrcnkeyav:firebaseisbetter@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
