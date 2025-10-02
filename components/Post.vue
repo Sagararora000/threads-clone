@@ -161,7 +161,7 @@
                 image: '',
                 picture: '',
                 text: '',
-                likes: [], // ✅ ensures it's always an array
+                likes: [],
             }),
         },
     });
@@ -169,17 +169,21 @@
     const client = useSupabaseClient();
     const user = useSupabaseUser();
 
-    // ✅ safer computed
-    const hasLikedComputed = computed(() => {
-        if (!user.value || !props.post.likes) return false;
+    // ✅ Local reactive copy of likes to prevent infinite loop
+    const likes = ref([...props.post.likes]);
 
-        return props.post.likes.some(
+    // ✅ Computed based on local likes array
+    const hasLikedComputed = computed(() => {
+        if (!user.value || !likes.value) return false;
+
+        return likes.value.some(
             (like) =>
                 like.userId === user.value.identities?.[0]?.user_id &&
                 like.postId === props.post.id
         );
     });
 
+    // ----------------- DELETE POST -----------------
     const deletePost = async (id, picture) => {
         let res = confirm('Are you sure you want to delete this post?');
         if (!res) return;
@@ -205,7 +209,8 @@
         }
     };
 
-    const likePost = async (id) => {
+    // ----------------- LIKE & UNLIKE -----------------
+    const likePost = async () => {
         if (!user.value) return;
         isLike.value = true;
 
@@ -214,10 +219,15 @@
                 method: 'POST',
                 body: {
                     userId: user.value.identities?.[0]?.user_id,
-                    postId: id,
+                    postId: props.post.id,
                 },
             });
-            await userStore.getAllPosts();
+
+            // ✅ Update local likes array
+            likes.value.push({
+                userId: user.value.identities?.[0]?.user_id,
+                postId: props.post.id,
+            });
         } catch (error) {
             console.error(error);
         } finally {
@@ -225,15 +235,25 @@
         }
     };
 
-    const unlikePost = async (id) => {
+    const unlikePost = async () => {
         if (!user.value) return;
         isLike.value = true;
 
         try {
-            await useFetch(`/.netlify/functions/unlike-post?id=${id}`, {
+            // Find the like object for the current user
+            const likeObj = likes.value.find(
+                (like) =>
+                    like.userId === user.value.identities?.[0]?.user_id &&
+                    like.postId === props.post.id
+            );
+            if (!likeObj) return;
+
+            await useFetch(`/.netlify/functions/unlike-post?id=${likeObj.id}`, {
                 method: 'DELETE',
             });
-            await userStore.getAllPosts();
+
+            // ✅ Remove from local likes array
+            likes.value = likes.value.filter((like) => like.id !== likeObj.id);
         } catch (error) {
             console.error(error);
         } finally {
@@ -241,22 +261,12 @@
         }
     };
 
+    // ----------------- TOGGLE LIKE -----------------
     const likesFunc = () => {
-        if (!props.post.likes || props.post.likes.length === 0) {
-            likePost(props.post.id);
-            return;
-        }
-
-        const likePostObj = props.post.likes.find(
-            (like) =>
-                like.userId === user.value.identities?.[0]?.user_id &&
-                like.postId === props.post.id
-        );
-
-        if (likePostObj) {
-            unlikePost(likePostObj.id);
+        if (hasLikedComputed.value) {
+            unlikePost();
         } else {
-            likePost(props.post.id);
+            likePost();
         }
     };
 </script>
