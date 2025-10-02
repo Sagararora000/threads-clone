@@ -142,113 +142,121 @@
 
 <script setup>
     import { useUserStore } from '~/stores/user';
-    const userStore = useUserStore();
 
+    const userStore = useUserStore();
     const runtimeConfig = useRuntimeConfig();
+
     let isMenu = ref(false);
     let isLike = ref(false);
     let isDeleting = ref(false);
 
     const emit = defineEmits(['isDeleted']);
-    const props = defineProps({ post: Object });
+    const props = defineProps({
+        post: {
+            type: Object,
+            default: () => ({
+                id: null,
+                userId: null,
+                name: '',
+                image: '',
+                picture: '',
+                text: '',
+                likes: [], // ✅ ensures it's always an array
+            }),
+        },
+    });
 
     const client = useSupabaseClient();
     const user = useSupabaseUser();
 
+    // ✅ safer computed
     const hasLikedComputed = computed(() => {
-        if (!user.value) return;
-        let res = false;
-        props.post.likes.forEach((like) => {
-            if (
-                like.userId == user.value.identities[0].user_id &&
-                like.postId == props.post.id
-            ) {
-                res = true;
-            }
-        });
+        if (!user.value || !props.post.likes) return false;
 
-        return res;
+        return props.post.likes.some(
+            (like) =>
+                like.userId === user.value.identities?.[0]?.user_id &&
+                like.postId === props.post.id
+        );
     });
 
     const deletePost = async (id, picture) => {
-        console.log(id, picture);
         let res = confirm('Are you sure you want to delete this post?');
-
         if (!res) return;
 
         try {
             isMenu.value = false;
             isDeleting.value = true;
+
             const { data, error } = await client.storage
                 .from('threads-clone-files')
                 .remove([picture]);
             console.log(data, error);
+
             await useFetch(`/.netlify/functions/delete-post?id=${id}`, {
                 method: 'DELETE',
             });
-            emit('isDeleted', true);
 
-            isDeleting.value = false;
+            emit('isDeleted', true);
         } catch (error) {
-            console.log(error);
+            console.error(error);
+        } finally {
             isDeleting.value = false;
         }
     };
 
     const likePost = async (id) => {
+        if (!user.value) return;
         isLike.value = true;
+
         try {
             await useFetch(`/.netlify/functions/like-post`, {
                 method: 'POST',
                 body: {
-                    userId: user.value.identities[0].user_id,
+                    userId: user.value.identities?.[0]?.user_id,
                     postId: id,
                 },
             });
             await userStore.getAllPosts();
-            isLike.value = false;
         } catch (error) {
-            console.log(error);
+            console.error(error);
+        } finally {
             isLike.value = false;
         }
     };
 
     const unlikePost = async (id) => {
+        if (!user.value) return;
         isLike.value = true;
+
         try {
             await useFetch(`/.netlify/functions/unlike-post?id=${id}`, {
                 method: 'DELETE',
             });
             await userStore.getAllPosts();
-            isLike.value = false;
         } catch (error) {
-            console.log(error);
+            console.error(error);
+        } finally {
             isLike.value = false;
         }
     };
 
     const likesFunc = () => {
-        let likePostObj = null;
-
-        if (props.post.likes.length < 1) {
+        if (!props.post.likes || props.post.likes.length === 0) {
             likePost(props.post.id);
-            return null;
-        } else {
-            props.post.likes.forEach((like) => {
-                if (
-                    like.userId == user.value.identities[0].user_id &&
-                    like.postId == props.post.id
-                ) {
-                    likePostObj = like;
-                }
-            });
+            return;
         }
+
+        const likePostObj = props.post.likes.find(
+            (like) =>
+                like.userId === user.value.identities?.[0]?.user_id &&
+                like.postId === props.post.id
+        );
 
         if (likePostObj) {
             unlikePost(likePostObj.id);
-            return null;
+        } else {
+            likePost(props.post.id);
         }
-
-        likePost(props.post.id);
     };
 </script>
