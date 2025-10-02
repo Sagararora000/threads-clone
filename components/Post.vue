@@ -94,7 +94,7 @@
                         <div class="relative text-sm text-gray-500">
                             <div>
                                 <span v-if="!isLike">{{
-                                    post.likes.length
+                                    (post.likes || []).length
                                 }}</span>
                                 <span v-else>
                                     <Icon
