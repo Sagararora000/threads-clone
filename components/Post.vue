@@ -170,20 +170,20 @@
     const user = useSupabaseUser();
 
     // ✅ Local reactive copy of likes to prevent infinite loop
-    const likes = ref(
-        Array.isArray(props.post.likes) ? [...props.post.likes] : []
-    );
+    // const likes = ref(
+    //     Array.isArray(props.post.likes) ? [...props.post.likes] : []
+    // );
 
     // ✅ Computed based on local likes array
-    const hasLikedComputed = computed(() => {
-        if (!user.value || !likes.value) return false;
+    // const hasLikedComputed = computed(() => {
+    //     if (!user.value || !likes.value) return false;
 
-        return likes.value.some(
-            (like) =>
-                like.userId === user.value.identities?.[0]?.user_id &&
-                like.postId === props.post.id
-        );
-    });
+    //     return likes.value.some(
+    //         (like) =>
+    //             like.userId === user.value.identities?.[0]?.user_id &&
+    //             like.postId === props.post.id
+    //     );
+    // });
 
     // ----------------- DELETE POST -----------------
     const deletePost = async (id, picture) => {
@@ -212,63 +212,63 @@
     };
 
     // ----------------- LIKE & UNLIKE -----------------
-    const likePost = async () => {
-        if (!user.value) return;
-        isLike.value = true;
+    // const likePost = async () => {
+    //     if (!user.value) return;
+    //     isLike.value = true;
 
-        try {
-            await useFetch(`/.netlify/functions/like-post`, {
-                method: 'POST',
-                body: {
-                    userId: user.value.identities?.[0]?.user_id,
-                    postId: props.post.id,
-                },
-            });
+    //     try {
+    //         await useFetch(`/.netlify/functions/like-post`, {
+    //             method: 'POST',
+    //             body: {
+    //                 userId: user.value.identities?.[0]?.user_id,
+    //                 postId: props.post.id,
+    //             },
+    //         });
 
-            // ✅ Update local likes array
-            likes.value.push({
-                userId: user.value.identities?.[0]?.user_id,
-                postId: props.post.id,
-            });
-        } catch (error) {
-            console.error(error);
-        } finally {
-            isLike.value = false;
-        }
-    };
+    //         // ✅ Update local likes array
+    //         likes.value.push({
+    //             userId: user.value.identities?.[0]?.user_id,
+    //             postId: props.post.id,
+    //         });
+    //     } catch (error) {
+    //         console.error(error);
+    //     } finally {
+    //         isLike.value = false;
+    //     }
+    // };
 
-    const unlikePost = async () => {
-        if (!user.value) return;
-        isLike.value = true;
+    // const unlikePost = async () => {
+    //     if (!user.value) return;
+    //     isLike.value = true;
 
-        try {
-            // Find the like object for the current user
-            const likeObj = likes.value.find(
-                (like) =>
-                    like.userId === user.value.identities?.[0]?.user_id &&
-                    like.postId === props.post.id
-            );
-            if (!likeObj) return;
+    //     try {
+    //         // Find the like object for the current user
+    //         const likeObj = likes.value.find(
+    //             (like) =>
+    //                 like.userId === user.value.identities?.[0]?.user_id &&
+    //                 like.postId === props.post.id
+    //         );
+    //         if (!likeObj) return;
 
-            await useFetch(`/.netlify/functions/unlike-post?id=${likeObj.id}`, {
-                method: 'DELETE',
-            });
+    //         await useFetch(`/.netlify/functions/unlike-post?id=${likeObj.id}`, {
+    //             method: 'DELETE',
+    //         });
 
-            // ✅ Remove from local likes array
-            likes.value = likes.value.filter((like) => like.id !== likeObj.id);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            isLike.value = false;
-        }
-    };
+    //         // ✅ Remove from local likes array
+    //         likes.value = likes.value.filter((like) => like.id !== likeObj.id);
+    //     } catch (error) {
+    //         console.error(error);
+    //     } finally {
+    //         isLike.value = false;
+    //     }
+    // };
 
     // ----------------- TOGGLE LIKE -----------------
-    const likesFunc = () => {
-        if (hasLikedComputed.value) {
-            unlikePost();
-        } else {
-            likePost();
-        }
-    };
+    // const likesFunc = () => {
+    //     if (hasLikedComputed.value) {
+    //         unlikePost();
+    //     } else {
+    //         likePost();
+    //     }
+    // };
 </script>
