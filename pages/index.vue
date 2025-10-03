@@ -94,14 +94,14 @@
         });
     });
 
-    watch(
-        () => posts.value,
-        () => {
-            if (userStore.posts && userStore.posts.length >= 1) {
-                posts.value = userStore.posts;
-                isPosts.value = true;
-            }
-        },
-        { deep: true }
-    );
+    // watch(
+    //     () => posts.value,
+    //     () => {
+    //         if (userStore.posts && userStore.posts.length >= 1) {
+    //             posts.value = userStore.posts;
+    //             isPosts.value = true;
+    //         }
+    //     },
+    //     { deep: true }
+    // );
 </script>
