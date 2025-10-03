@@ -54,7 +54,7 @@
                 </div>
             </div>
 
-            <div class="relative flex items-center w-full">
+            <!-- <div class="relative flex items-center w-full">
                 <div class="w-[42px] mx-auto">
                     <div
                         class="absolute ml-4 mt-1 top-0 w-[1px] bg-gray-700 h-full"
@@ -108,10 +108,10 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
 
-        <div class="relative inline-block text-gray-500 pt-1 pb-1.5">
+        <!-- <div class="relative inline-block text-gray-500 pt-1 pb-1.5">
             <div class="flex items-center">
                 <div
                     class="flex items-center flex-wrap text-white gap-1 w-[42px]"
@@ -134,7 +134,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <div class="h-[1px] bg-gray-800 w-full mt-3" />
     </div>
