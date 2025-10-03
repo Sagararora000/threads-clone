@@ -86,22 +86,18 @@
     });
 
     onMounted(() => {
-        watchEffect(() => {
-            if (userStore.posts && userStore.posts.length >= 1) {
-                posts.value = userStore.posts;
-                isPosts.value = true;
-            }
-        });
+        watch(
+            () => userStore.posts,
+            (newPosts) => {
+                if (newPosts && newPosts.length >= 1) {
+                    posts.value = newPosts;
+                    isPosts.value = true;
+                } else {
+                    posts.value = [];
+                    isPosts.value = false;
+                }
+            },
+            { immediate: true }
+        );
     });
-
-    // watch(
-    //     () => posts.value,
-    //     () => {
-    //         if (userStore.posts && userStore.posts.length >= 1) {
-    //             posts.value = userStore.posts;
-    //             isPosts.value = true;
-    //         }
-    //     },
-    //     { deep: true }
-    // );
 </script>
